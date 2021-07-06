@@ -34,4 +34,7 @@ func FormatValidationError(err error) []string {
 	for _, e := range err.(validator.ValidationErrors) {
 		errors = append(errors, e.Error())
 	}
+
+	return errors
+
 }
