@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bwastartup/auth"
 	"bwastartup/handler"
 	"bwastartup/user"
+	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -20,31 +22,13 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
+	authService := auth.NewService()
+
+	fmt.Println(authService.GenerateToken(1001))
 
 	userService.SaveAvatar(1, "images/1-profile.png")
-	// input := user.LoginInput{
-	// 	Email:    "kunti@gmail.com",
-	// 	Password: "dsdsd",
-	// }
 
-	// user, err := userService.Login(input)
-	// if err != nil {
-	// 	fmt.Println("Login gagal")
-	// 	fmt.Println(err.Error())
-	// }
-
-	// fmt.Println(user.Email)
-	// fmt.Println(user.Name)
-
-	// userByEmail, err := userRepository.FindByEmail("kunti@gmail.com")
-
-	// if userByEmail.ID == 0 {
-	// 	fmt.Println("User tidak ditemukan")
-	// } else {
-	// 	fmt.Println(userByEmail.Name)
-	// }
-
-	userHandler := handler.NewUserHandler(userService)
+	userHandler := handler.NewUserHandler(userService, authService)
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 
@@ -56,31 +40,5 @@ func main() {
 	api.POST("/avatars", userHandler.UploadAvatar)
 
 	router.Run()
-
-	// userInput := user.RegisterUserInput{}
-	// userInput.Name = "Tes simpan dari service"
-	// userInput.Email = "contoh@gmaail.com"
-	// userInput.Occupation = "anak band"
-	// userInput.Password = "password"
-
-	// userService.RegisterUser(userInput)
-
-	// fmt.Println("Connected to Database successfully")
-
-	// var users []user.User
-
-	// db.Find(&users)
-
-	// length := len(users)
-
-	// fmt.Println(length)
-
-	// for _, user := range users {
-	// 	fmt.Println(user.Name)
-	// }
-
-	// router := gin.Default()
-	// router.GET("/handler", handler)
-	// router.Run()
 
 }
