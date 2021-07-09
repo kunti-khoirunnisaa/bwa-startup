@@ -90,5 +90,6 @@ func authMiddleware(authService auth.Service, userService user.Service) gin.Hand
 
 		// set context isinya adalah user
 		c.Set("currentUser", user)
+
 	}
 }
