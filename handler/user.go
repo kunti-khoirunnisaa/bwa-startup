@@ -156,8 +156,9 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	// service nentuin user login, akses repo
-	userID := 1
+	// user dari context
+	currentUser := c.MustGet("currentUser").(user.User)
+	userID := currentUser.ID
 
 	// repo simpan gambar name
 	_, err = h.userService.SaveAvatar(userID, path)
