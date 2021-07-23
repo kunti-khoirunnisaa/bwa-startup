@@ -1,12 +1,15 @@
 package campaign
 
-import "time"
+import (
+	"bwastartup/user"
+	"time"
+)
 
 // mewakili tabel campaign
 
 type Campaign struct {
 	ID               int
-	userID           int
+	UserID           int
 	Name             string
 	ShortDescription string
 	Description      string
@@ -18,6 +21,7 @@ type Campaign struct {
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 	CampaignImages   []CampaignImage
+	User             user.User `gorm:"foreignKey:UserID"`
 }
 
 type CampaignImage struct {
