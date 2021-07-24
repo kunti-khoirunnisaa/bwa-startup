@@ -3,6 +3,7 @@ package handler
 import (
 	"bwastartup/campaign"
 	"bwastartup/helper"
+	"bwastartup/user"
 	"net/http"
 	"strconv"
 
@@ -51,6 +52,40 @@ func (h *campaignHandler) GetCampaign(c *gin.Context) {
 		return
 	}
 	response := helper.APIResponse("Success to get required campaign by id", http.StatusOK, "success", campaign.FormatCampaignDetail(campaignDetail))
+	c.JSON(http.StatusOK, response)
+
+}
+
+// tangkap post dari form mapping ke input struct
+// session id ambil dari jwt
+// service mapping input struct sesuai session id untuk panggil repository, dan generate slug
+// repository simpan data
+
+func (h *campaignHandler) CreateCampaign(c *gin.Context) {
+	var input campaign.CreateCampaignInput
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		errors := helper.FormatValidationError(err)
+		errorMessage := gin.H{"errors": errors}
+
+		response := helper.APIResponse("Bind Json failed", http.StatusUnprocessableEntity, "error", errorMessage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	currentUser := c.MustGet("currentUser").(user.User)
+	input.User = currentUser
+
+	NewCampaign, err := h.service.CreateCampaign(input)
+	if err != nil {
+		response := helper.APIResponse("Create campaign failed", http.StatusBadRequest, "failed", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	formatter := campaign.FormatCampaign(NewCampaign)
+
+	response := helper.APIResponse("New campaign successfully created", http.StatusOK, "success", formatter)
 	c.JSON(http.StatusOK, response)
 
 }
