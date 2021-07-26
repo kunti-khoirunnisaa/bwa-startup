@@ -89,3 +89,47 @@ func (h *campaignHandler) CreateCampaign(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 
 }
+
+// input struct
+// reposoitory untuk update data
+// service mapping input untuk simpan pake repository
+// handler bikin function untuk nangkap input json dan uri lalu panggil service
+// route di main.go
+
+func (h *campaignHandler) UpdateCampaign(c *gin.Context) {
+	var inputID campaign.GetCampaignDetailInput
+
+	err := c.ShouldBindUri(&inputID)
+	if err != nil {
+		response := helper.APIResponse("URI campaign input id not found", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	var inputData campaign.CreateCampaignInput
+	err = c.ShouldBindJSON(&inputData)
+	if err != nil {
+		errors := helper.FormatValidationError(err)
+		errorMessage := gin.H{"errors": errors}
+
+		response := helper.APIResponse("Bind Json failed", http.StatusUnprocessableEntity, "error", errorMessage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	currentUser := c.MustGet("currentUser").(user.User)
+	inputData.User = currentUser
+
+	updatedCampaign, err := h.service.Update(inputID, inputData)
+	if err != nil {
+		response := helper.APIResponse("Update campaign failed", http.StatusBadRequest, "failed", err)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	formatter := campaign.FormatCampaign(updatedCampaign)
+
+	response := helper.APIResponse("Campaign updated successfully", http.StatusOK, "success", formatter)
+	c.JSON(http.StatusOK, response)
+
+}
